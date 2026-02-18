@@ -1,9 +1,9 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer"
 
 /**
  * Sends an email with the signed PDF attached.
  *
- * Uses Mailtrap SMTP credentials from environment variables.
+ * Uses Gmail SMTP credentials from environment variables.
  * Sends to both the student and admin.
  */
 export async function sendSignedAgreementEmail({
@@ -13,22 +13,27 @@ export async function sendSignedAgreementEmail({
   pdfBuffer,
   course,
 }: {
-  studentEmail: string;
-  studentName: string;
-  adminEmail: string;
-  pdfBuffer: Buffer;
-  course: string;
+  studentEmail: string
+  studentName: string
+  adminEmail: string
+  pdfBuffer: Buffer
+  course: string
 }) {
   const transporter = nodemailer.createTransport({
-    host: process.env.MAILTRAP_HOST || 'smtp.mailtrap.io',
-    port: parseInt(process.env.MAILTRAP_PORT || '2525', 10),
+    host: process.env.SMTP_SERVER || "smtp.gmail.com",
+    port: parseInt(process.env.SMTP_PORT || "587", 10),
+    secure: false, // use STARTTLS on port 587
     auth: {
-      user: process.env.MAILTRAP_USER,
-      pass: process.env.MAILTRAP_PASS,
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD,
     },
-  });
+  })
 
-  const filename = `agreement-${studentName.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+  const fromName = process.env.FROM_NAME || "Student Agreement Form"
+  const fromEmail = process.env.FROM_EMAIL || process.env.SMTP_USERNAME
+  const fromAddress = `"${fromName}" <${fromEmail}>`
+
+  const filename = `agreement-${studentName.replace(/\s+/g, "-").toLowerCase()}.pdf`
 
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -51,7 +56,7 @@ export async function sendSignedAgreementEmail({
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3; border-radius: 0 0 0 6px;">Course</td>
-            <td style="padding: 8px 12px; background: #f5f3fa; border-radius: 0 0 6px 0;">${course || 'N/A'}</td>
+            <td style="padding: 8px 12px; background: #f5f3fa; border-radius: 0 0 6px 0;">${course || "N/A"}</td>
           </tr>
         </table>
         <p style="color: #555; font-size: 14px; line-height: 1.6;">
@@ -63,11 +68,11 @@ export async function sendSignedAgreementEmail({
         </p>
       </div>
     </div>
-  `;
+  `
 
   // Send to student
   await transporter.sendMail({
-    from: '"Student Agreement Form" <no-reply@agreement-form.com>',
+    from: fromAddress,
     to: studentEmail,
     subject: `Your Signed Agreement — ${studentName}`,
     html: htmlBody,
@@ -75,14 +80,14 @@ export async function sendSignedAgreementEmail({
       {
         filename,
         content: pdfBuffer,
-        contentType: 'application/pdf',
+        contentType: "application/pdf",
       },
     ],
-  });
+  })
 
   // Send to admin
   await transporter.sendMail({
-    from: '"Student Agreement Form" <no-reply@agreement-form.com>',
+    from: fromAddress,
     to: adminEmail,
     subject: `[New Submission] Agreement Signed by ${studentName}`,
     html: htmlBody,
@@ -90,8 +95,8 @@ export async function sendSignedAgreementEmail({
       {
         filename,
         content: pdfBuffer,
-        contentType: 'application/pdf',
+        contentType: "application/pdf",
       },
     ],
-  });
+  })
 }
