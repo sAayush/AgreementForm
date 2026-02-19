@@ -1,133 +1,132 @@
-'use client';
+"use client"
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import SignaturePad from 'signature_pad';
+import { useState, useRef, useEffect, useCallback } from "react"
+import SignaturePad from "signature_pad"
 
 interface Props {
-  studentName: string;
-  onBack: () => void;
-  onSubmit: (signatureDataUrl: string) => void;
-  error: string;
+  studentName: string
+  onBack: () => void
+  onSubmit: (signatureDataUrl: string) => void
+  error: string
 }
 
-type SignatureMode = 'draw' | 'type';
+type SignatureMode = "draw" | "type"
 
 export default function SignatureStep({ studentName, onBack, onSubmit, error }: Props) {
-  const [mode, setMode] = useState<SignatureMode>('draw');
-  const [typedSignature, setTypedSignature] = useState('');
-  const [hasDrawnSignature, setHasDrawnSignature] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const signaturePadRef = useRef<SignaturePad | null>(null);
+  const [mode, setMode] = useState<SignatureMode>("draw")
+  const [typedSignature, setTypedSignature] = useState("")
+  const [hasDrawnSignature, setHasDrawnSignature] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const signaturePadRef = useRef<SignaturePad | null>(null)
 
   // Initialize signature pad
   useEffect(() => {
-    if (mode !== 'draw' || !canvasRef.current) return;
+    if (mode !== "draw" || !canvasRef.current) return
 
-    const canvas = canvasRef.current;
-    const parent = canvas.parentElement;
-    if (!parent) return;
+    const canvas = canvasRef.current
+    const parent = canvas.parentElement
+    if (!parent) return
 
     // Set canvas size
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = parent.offsetWidth * ratio;
-    canvas.height = 200 * ratio;
-    canvas.style.width = `${parent.offsetWidth}px`;
-    canvas.style.height = '200px';
+    const ratio = Math.max(window.devicePixelRatio || 1, 1)
+    canvas.width = parent.offsetWidth * ratio
+    canvas.height = 200 * ratio
+    canvas.style.width = `${parent.offsetWidth}px`
+    canvas.style.height = "200px"
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d")
     if (ctx) {
-      ctx.scale(ratio, ratio);
+      ctx.scale(ratio, ratio)
     }
 
     const pad = new SignaturePad(canvas, {
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      penColor: '#e0d4ff',
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      penColor: "#4f46e5",
       minWidth: 1.5,
       maxWidth: 3,
-    });
+    })
 
-    pad.addEventListener('endStroke', () => {
-      setHasDrawnSignature(!pad.isEmpty());
-    });
+    pad.addEventListener("endStroke", () => {
+      setHasDrawnSignature(!pad.isEmpty())
+    })
 
-    signaturePadRef.current = pad;
+    signaturePadRef.current = pad
 
     return () => {
-      pad.off();
-    };
-  }, [mode]);
+      pad.off()
+    }
+  }, [mode])
 
   // Handle window resize for canvas
   useEffect(() => {
     const handleResize = () => {
-      if (mode !== 'draw' || !canvasRef.current || !signaturePadRef.current) return;
-      const canvas = canvasRef.current;
-      const parent = canvas.parentElement;
-      if (!parent) return;
+      if (mode !== "draw" || !canvasRef.current || !signaturePadRef.current) return
+      const canvas = canvasRef.current
+      const parent = canvas.parentElement
+      if (!parent) return
 
-      const data = signaturePadRef.current.toData();
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = parent.offsetWidth * ratio;
-      canvas.height = 200 * ratio;
-      canvas.style.width = `${parent.offsetWidth}px`;
-      canvas.style.height = '200px';
+      const data = signaturePadRef.current.toData()
+      const ratio = Math.max(window.devicePixelRatio || 1, 1)
+      canvas.width = parent.offsetWidth * ratio
+      canvas.height = 200 * ratio
+      canvas.style.width = `${parent.offsetWidth}px`
+      canvas.style.height = "200px"
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d")
       if (ctx) {
-        ctx.scale(ratio, ratio);
+        ctx.scale(ratio, ratio)
       }
 
-      signaturePadRef.current.fromData(data);
-    };
+      signaturePadRef.current.fromData(data)
+    }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [mode]);
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [mode])
 
   const clearSignature = useCallback(() => {
-    if (mode === 'draw' && signaturePadRef.current) {
-      signaturePadRef.current.clear();
-      setHasDrawnSignature(false);
+    if (mode === "draw" && signaturePadRef.current) {
+      signaturePadRef.current.clear()
+      setHasDrawnSignature(false)
     } else {
-      setTypedSignature('');
+      setTypedSignature("")
     }
-  }, [mode]);
+  }, [mode])
 
   const getSignatureDataUrl = (): string | null => {
-    if (mode === 'draw') {
+    if (mode === "draw") {
       if (!signaturePadRef.current || signaturePadRef.current.isEmpty()) {
-        return null;
+        return null
       }
-      return signaturePadRef.current.toDataURL('image/png');
+      return signaturePadRef.current.toDataURL("image/png")
     } else {
-      if (!typedSignature.trim()) return null;
+      if (!typedSignature.trim()) return null
       // Generate a data URL from typed text using canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = 600;
-      canvas.height = 150;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return null;
+      const canvas = document.createElement("canvas")
+      canvas.width = 600
+      canvas.height = 150
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return null
 
-      ctx.fillStyle = 'transparent';
-      ctx.fillRect(0, 0, 600, 150);
-      ctx.font = '48px Caveat, cursive';
-      ctx.fillStyle = '#e0d4ff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(typedSignature, 300, 75);
+      ctx.fillStyle = "transparent"
+      ctx.fillRect(0, 0, 600, 150)
+      ctx.font = "48px Caveat, cursive"
+      ctx.fillStyle = "#4f46e5"
+      ctx.textAlign = "center"
+      ctx.textBaseline = "middle"
+      ctx.fillText(typedSignature, 300, 75)
 
-      return canvas.toDataURL('image/png');
+      return canvas.toDataURL("image/png")
     }
-  };
+  }
 
   const handleSubmit = () => {
-    const dataUrl = getSignatureDataUrl();
-    if (!dataUrl) return;
-    onSubmit(dataUrl);
-  };
+    const dataUrl = getSignatureDataUrl()
+    if (!dataUrl) return
+    onSubmit(dataUrl)
+  }
 
-  const isValid =
-    mode === 'draw' ? hasDrawnSignature : typedSignature.trim().length > 0;
+  const isValid = mode === "draw" ? hasDrawnSignature : typedSignature.trim().length > 0
 
   return (
     <div>
@@ -140,40 +139,30 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
       <div className="signature-mode-toggle">
         <button
           type="button"
-          className={`signature-mode-btn ${mode === 'draw' ? 'active' : ''}`}
-          onClick={() => setMode('draw')}
-        >
+          className={`signature-mode-btn ${mode === "draw" ? "active" : ""}`}
+          onClick={() => setMode("draw")}>
           ✏️ Draw Signature
         </button>
         <button
           type="button"
-          className={`signature-mode-btn ${mode === 'type' ? 'active' : ''}`}
-          onClick={() => setMode('type')}
-        >
+          className={`signature-mode-btn ${mode === "type" ? "active" : ""}`}
+          onClick={() => setMode("type")}>
           ⌨️ Type Signature
         </button>
       </div>
 
       {/* Draw Mode */}
-      {mode === 'draw' && (
+      {mode === "draw" && (
         <>
           <div className="signature-canvas-wrapper">
             <canvas ref={canvasRef} />
-            <div
-              className={`signature-canvas-placeholder ${
-                hasDrawnSignature ? 'hidden' : ''
-              }`}
-            >
-              <span style={{ fontSize: '24px' }}>✍️</span>
+            <div className={`signature-canvas-placeholder ${hasDrawnSignature ? "hidden" : ""}`}>
+              <span style={{ fontSize: "24px" }}>✍️</span>
               <span>Draw your signature here</span>
             </div>
           </div>
           <div className="signature-actions">
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={clearSignature}
-            >
+            <button type="button" className="btn btn-ghost" onClick={clearSignature}>
               🗑️ Clear
             </button>
           </div>
@@ -181,14 +170,14 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
       )}
 
       {/* Type Mode */}
-      {mode === 'type' && (
+      {mode === "type" && (
         <>
           <input
             type="text"
             className="signature-typed-input"
             placeholder="Type your full name..."
             value={typedSignature}
-            onChange={(e) => setTypedSignature(e.target.value)}
+            onChange={e => setTypedSignature(e.target.value)}
             autoFocus
           />
           {typedSignature && (
@@ -198,11 +187,7 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
             </div>
           )}
           <div className="signature-actions">
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={clearSignature}
-            >
+            <button type="button" className="btn btn-ghost" onClick={clearSignature}>
               🗑️ Clear
             </button>
           </div>
@@ -210,14 +195,14 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
       )}
 
       {/* Signer info */}
-      <div className="signature-preview" style={{ marginBottom: '0' }}>
+      <div className="signature-preview" style={{ marginBottom: "0" }}>
         <p>Signing as</p>
         <div className="detail-value">{studentName}</div>
-        <p style={{ marginTop: '4px' }}>
-          {new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+        <p style={{ marginTop: "4px" }}>
+          {new Date().toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           })}
         </p>
       </div>
@@ -227,13 +212,12 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
         <div
           className="error-message"
           style={{
-            marginTop: '16px',
-            padding: '12px 16px',
-            background: 'var(--error-bg)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-          }}
-        >
+            marginTop: "16px",
+            padding: "12px 16px",
+            background: "var(--error-bg)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid rgba(239, 68, 68, 0.2)",
+          }}>
           ⚠ {error}
         </div>
       )}
@@ -246,11 +230,10 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
           type="button"
           className="btn btn-primary"
           disabled={!isValid}
-          onClick={handleSubmit}
-        >
+          onClick={handleSubmit}>
           Submit & Sign ✓
         </button>
       </div>
     </div>
-  );
+  )
 }

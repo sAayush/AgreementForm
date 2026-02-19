@@ -33,20 +33,22 @@ export async function appendToSheet(formData: Record<string, string>) {
 
   // Ensure headers exist in row 1
   const headers = [
-    "Timestamp",
+    "Student ID",
     "Full Name",
+    "First Name",
+    "Last Name",
     "Email",
     "Phone",
     "Course",
-    "Student ID",
     "Date",
     "Signed",
+    "Timestamp",
   ]
 
   try {
     const headerCheck = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: "Sheet1!A1:H1",
+      range: "Sheet1!A1:J1",
     })
 
     const existingHeaders = headerCheck.data.values?.[0]
@@ -54,7 +56,7 @@ export async function appendToSheet(formData: Record<string, string>) {
       // No headers yet — insert them
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
-        range: "Sheet1!A1:H1",
+        range: "Sheet1!A1:J1",
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [headers],
@@ -65,7 +67,7 @@ export async function appendToSheet(formData: Record<string, string>) {
     // If reading fails (empty sheet), write headers
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: "Sheet1!A1:H1",
+      range: "Sheet1!A1:J1",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [headers],
@@ -75,21 +77,29 @@ export async function appendToSheet(formData: Record<string, string>) {
 
   const timestamp = new Date().toISOString()
 
+  // Split full name
+  const fullName = formData.fullName || ""
+  const nameParts = fullName.trim().split(/\s+/)
+  const firstName = nameParts[0] || ""
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
+
   // Build the data row
   const row = [
-    timestamp,
-    formData.fullName || "",
+    formData.studentId || "",
+    fullName,
+    firstName,
+    lastName,
     formData.email || "",
     formData.phone || "",
     formData.course || "",
-    formData.studentId || "",
     formData.date || "",
     "Yes",
+    timestamp,
   ]
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
-    range: "Sheet1!A:H",
+    range: "Sheet1!A:J",
     valueInputOption: "USER_ENTERED",
     requestBody: {
       values: [row],

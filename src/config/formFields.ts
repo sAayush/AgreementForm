@@ -1,11 +1,11 @@
 export interface FormField {
-  name: string;
-  label: string;
-  type: 'text' | 'email' | 'tel' | 'date' | 'select';
-  required: boolean;
-  placeholder: string;
-  options?: string[]; // For select type
-  autoFill?: 'date'; // Auto-fill with current date
+  name: string
+  label: string
+  type: "text" | "email" | "tel" | "date" | "select"
+  required: boolean
+  placeholder: string
+  options?: string[] // For select type
+  autoFill?: "date" // Auto-fill with current date
 }
 
 /**
@@ -15,46 +15,40 @@ export interface FormField {
  */
 export const formFields: FormField[] = [
   {
-    name: 'fullName',
-    label: 'Full Name',
-    type: 'text',
+    name: "fullName",
+    label: "Full Name",
+    type: "text",
     required: true,
-    placeholder: 'Enter your full name',
+    placeholder: "Enter your full name",
   },
   {
-    name: 'email',
-    label: 'Email Address',
-    type: 'email',
+    name: "email",
+    label: "Email Address",
+    type: "email",
     required: true,
-    placeholder: 'Enter your email address',
+    placeholder: "Enter your email address",
   },
   {
-    name: 'phone',
-    label: 'Phone Number',
-    type: 'tel',
+    name: "phone",
+    label: "Phone Number",
+    type: "tel",
     required: false,
-    placeholder: 'Enter your phone number',
+    placeholder: "Enter your phone number",
   },
   {
-    name: 'course',
-    label: 'Course / Program',
-    type: 'text',
+    name: "course",
+    label: "Course / Program",
+    type: "text",
     required: true,
-    placeholder: 'e.g. B.Tech Computer Science',
+    placeholder: "e.g. B.Tech Computer Science",
   },
+
   {
-    name: 'studentId',
-    label: 'Student ID / Roll Number',
-    type: 'text',
-    required: false,
-    placeholder: 'Enter your student ID',
-  },
-  {
-    name: 'date',
-    label: 'Date',
-    type: 'date',
+    name: "date",
+    label: "Date",
+    type: "date",
     required: true,
-    placeholder: '',
-    autoFill: 'date',
+    placeholder: "",
+    autoFill: "date",
   },
-];
+]

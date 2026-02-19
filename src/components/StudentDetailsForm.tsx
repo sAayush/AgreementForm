@@ -1,99 +1,117 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { formFields, type FormField } from '@/config/formFields';
-import type { FormData } from './FormWizard';
+import { useState, useEffect } from "react"
+import { formFields, type FormField } from "@/config/formFields"
+import type { FormData } from "./FormWizard"
 
 interface Props {
-  initialData: FormData;
-  onNext: (data: FormData) => void;
+  initialData: FormData
+  onNext: (data: FormData) => void
 }
 
 export default function StudentDetailsForm({ initialData, onNext }: Props) {
-  const [data, setData] = useState<FormData>({ ...initialData });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [data, setData] = useState<FormData>({ ...initialData })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Auto-fill date field
   useEffect(() => {
-    formFields.forEach((field) => {
-      if (field.autoFill === 'date' && !data[field.name]) {
-        setData((prev) => ({
+    formFields.forEach(field => {
+      if (field.autoFill === "date" && !data[field.name]) {
+        setData(prev => ({
           ...prev,
-          [field.name]: new Date().toISOString().split('T')[0],
-        }));
+          [field.name]: new Date().toISOString().split("T")[0],
+        }))
       }
-    });
-  }, []);
+    })
+  }, [])
 
   const handleChange = (name: string, value: string) => {
-    setData((prev) => ({ ...prev, [name]: value }));
+    setData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy[name];
-        return copy;
-      });
+      setErrors(prev => {
+        const copy = { ...prev }
+        delete copy[name]
+        return copy
+      })
     }
-  };
+  }
 
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
 
-    formFields.forEach((field) => {
-      const value = data[field.name]?.trim() || '';
+    formFields.forEach(field => {
+      const value = data[field.name]?.trim() || ""
 
       if (field.required && !value) {
-        newErrors[field.name] = `${field.label} is required`;
+        newErrors[field.name] = `${field.label} is required`
       }
 
-      if (field.type === 'email' && value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (field.type === "email" && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(value)) {
-          newErrors[field.name] = 'Please enter a valid email address';
+          newErrors[field.name] = "Please enter a valid email address"
         }
       }
-    });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+      if (field.name === "phone" && value) {
+        // US Phone Validation: (123) 456-7890, 123-456-7890, 1234567890
+        const phoneRegex = /^(\+1[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/
+        if (!phoneRegex.test(value)) {
+          newErrors[field.name] = "Please enter a valid US phone number"
+        }
+      }
+    })
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const generateStudentId = () => {
+    const timestamp = Date.now().toString(36).toUpperCase()
+    const random = Math.random().toString(36).substring(2, 5).toUpperCase()
+    return `STU-${timestamp}-${random}`
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (validate()) {
-      onNext(data);
+      // Append generated Student ID if not already present
+      const submissionData = { ...data }
+      if (!submissionData.studentId) {
+        submissionData.studentId = generateStudentId()
+      }
+      onNext(submissionData)
     }
-  };
+  }
 
   const renderField = (field: FormField) => {
-    if (field.type === 'select' && field.options) {
+    if (field.type === "select" && field.options) {
       return (
         <select
           id={field.name}
-          value={data[field.name] || ''}
-          onChange={(e) => handleChange(field.name, e.target.value)}
-        >
-          <option value="">{field.placeholder || 'Select...'}</option>
-          {field.options.map((opt) => (
+          value={data[field.name] || ""}
+          onChange={e => handleChange(field.name, e.target.value)}>
+          <option value="">{field.placeholder || "Select..."}</option>
+          {field.options.map(opt => (
             <option key={opt} value={opt}>
               {opt}
             </option>
           ))}
         </select>
-      );
+      )
     }
 
     return (
       <input
         id={field.name}
         type={field.type}
-        value={data[field.name] || ''}
-        onChange={(e) => handleChange(field.name, e.target.value)}
+        value={data[field.name] || ""}
+        onChange={e => handleChange(field.name, e.target.value)}
         placeholder={field.placeholder}
-        className={errors[field.name] ? 'error' : ''}
+        className={errors[field.name] ? "error" : ""}
       />
-    );
-  };
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -103,30 +121,25 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
       </p>
 
       <div className="form-grid">
-        {formFields.map((field) => (
+        {formFields.map(field => (
           <div
             key={field.name}
-            className={`form-group ${
-              field.type === 'date' || field.name === 'email' ? '' : ''
-            }`}
-          >
+            className={`form-group ${field.type === "date" || field.name === "email" ? "" : ""}`}>
             <label htmlFor={field.name}>
               {field.label}
               {field.required && <span className="required">*</span>}
             </label>
             {renderField(field)}
-            {errors[field.name] && (
-              <span className="error-message">⚠ {errors[field.name]}</span>
-            )}
+            {errors[field.name] && <span className="error-message">⚠ {errors[field.name]}</span>}
           </div>
         ))}
       </div>
 
-      <div className="button-row" style={{ justifyContent: 'flex-end' }}>
+      <div className="button-row" style={{ justifyContent: "flex-end" }}>
         <button type="submit" className="btn btn-primary">
           Continue →
         </button>
       </div>
     </form>
-  );
+  )
 }
