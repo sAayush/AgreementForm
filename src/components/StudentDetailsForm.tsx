@@ -54,10 +54,10 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
       }
 
       if (field.name === "phone" && value) {
-        // US Phone Validation: (123) 456-7890, 123-456-7890, 1234567890
-        const phoneRegex = /^(\+1[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{4}$/
+        // Strict US Phone Validation (10 digits, optional separators)
+        const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
         if (!phoneRegex.test(value)) {
-          newErrors[field.name] = "Please enter a valid US phone number"
+          newErrors[field.name] = "Please enter a valid 10-digit phone number"
         }
       }
     })
@@ -101,6 +101,38 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
       )
     }
 
+    if (field.type === "tel") {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 12px",
+              height: "46px",
+              background: "var(--bg-input)", // Matches input bg from globals.css
+              border: "1px solid transparent", // Matches input border
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-muted)",
+              fontSize: "0.95rem",
+              fontWeight: 500,
+            }}>
+            🇺🇸 +1
+          </div>
+          <input
+            id={field.name}
+            type="tel"
+            value={data[field.name] || ""}
+            onChange={e => handleChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            className={errors[field.name] ? "error" : ""}
+            style={{ flex: 1 }}
+          />
+        </div>
+      )
+    }
+
     return (
       <input
         id={field.name}
@@ -124,7 +156,7 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
         {formFields.map(field => (
           <div
             key={field.name}
-            className={`form-group ${field.type === "date" || field.name === "email" ? "" : ""}`}>
+            className={`form-group ${field.name === "course" ? "full-width" : ""}`}>
             <label htmlFor={field.name}>
               {field.label}
               {field.required && <span className="required">*</span>}

@@ -32,17 +32,9 @@ export const formFields: FormField[] = [
     name: "phone",
     label: "Phone Number",
     type: "tel",
-    required: false,
-    placeholder: "Enter your phone number",
-  },
-  {
-    name: "course",
-    label: "Course / Program",
-    type: "text",
     required: true,
-    placeholder: "e.g. B.Tech Computer Science",
+    placeholder: "(555) 555-5555",
   },
-
   {
     name: "date",
     label: "Date",
@@ -50,5 +42,12 @@ export const formFields: FormField[] = [
     required: true,
     placeholder: "",
     autoFill: "date",
+  },
+  {
+    name: "course",
+    label: "Course / Program",
+    type: "text",
+    required: true,
+    placeholder: "e.g. B.Tech Computer Science",
   },
 ]
