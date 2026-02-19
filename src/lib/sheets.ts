@@ -90,7 +90,7 @@ export async function appendToSheet(formData: Record<string, string>) {
     firstName,
     lastName,
     formData.email || "",
-    formData.phone || "",
+    formData.phone ? `+1 ${formData.phone}` : "",
     formData.course || "",
     formData.date || "",
     "Yes",
