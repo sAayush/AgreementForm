@@ -75,7 +75,17 @@ export async function appendToSheet(formData: Record<string, string>) {
     })
   }
 
-  const timestamp = new Date().toISOString()
+  // Use Arizona (America/Phoenix) timezone — MST year-round, no DST
+  const timestamp = new Date().toLocaleString("en-US", {
+    timeZone: "America/Phoenix",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  })
 
   // Split full name
   const fullName = formData.fullName || ""
@@ -90,7 +100,7 @@ export async function appendToSheet(formData: Record<string, string>) {
     firstName,
     lastName,
     formData.email || "",
-    formData.phone ? `+1 ${formData.phone}` : "",
+    formData.phone || "",
     formData.course || "",
     formData.date || "",
     "Yes",

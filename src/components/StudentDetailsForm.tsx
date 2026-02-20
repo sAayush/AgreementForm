@@ -25,8 +25,17 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
     })
   }, [])
 
+  // Auto-format phone number into (XXX) XXX-XXXX
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, "").slice(0, 10)
+    if (digits.length <= 3) return digits.length ? `(${digits}` : ""
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+
   const handleChange = (name: string, value: string) => {
-    setData(prev => ({ ...prev, [name]: value }))
+    const formatted = name === "phone" ? formatPhoneNumber(value) : value
+    setData(prev => ({ ...prev, [name]: formatted }))
     if (errors[name]) {
       setErrors(prev => {
         const copy = { ...prev }
@@ -50,14 +59,6 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(value)) {
           newErrors[field.name] = "Please enter a valid email address"
-        }
-      }
-
-      if (field.name === "phone" && value) {
-        // Strict US Phone Validation (10 digits, optional separators)
-        const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
-        if (!phoneRegex.test(value)) {
-          newErrors[field.name] = "Please enter a valid 10-digit phone number"
         }
       }
     })
