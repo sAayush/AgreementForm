@@ -9,7 +9,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { 
     e.preventDefault()
     setError("")
     setLoading(true)
