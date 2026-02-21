@@ -141,13 +141,13 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
           type="button"
           className={`signature-mode-btn ${mode === "draw" ? "active" : ""}`}
           onClick={() => setMode("draw")}>
-          ✏️ Draw Signature
+          Draw Signature
         </button>
         <button
           type="button"
           className={`signature-mode-btn ${mode === "type" ? "active" : ""}`}
           onClick={() => setMode("type")}>
-          ⌨️ Type Signature
+          Type Signature
         </button>
       </div>
 
@@ -157,13 +157,12 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
           <div className="signature-canvas-wrapper">
             <canvas ref={canvasRef} />
             <div className={`signature-canvas-placeholder ${hasDrawnSignature ? "hidden" : ""}`}>
-              <span style={{ fontSize: "24px" }}>✍️</span>
               <span>Draw your signature here</span>
             </div>
           </div>
           <div className="signature-actions">
             <button type="button" className="btn btn-ghost" onClick={clearSignature}>
-              🗑️ Clear
+              Clear
             </button>
           </div>
         </>
@@ -188,7 +187,7 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
           )}
           <div className="signature-actions">
             <button type="button" className="btn btn-ghost" onClick={clearSignature}>
-              🗑️ Clear
+              Clear
             </button>
           </div>
         </>
@@ -231,7 +230,7 @@ export default function SignatureStep({ studentName, onBack, onSubmit, error }: 
           className="btn btn-primary"
           disabled={!isValid}
           onClick={handleSubmit}>
-          Submit & Sign ✓
+          Submit & Sign
         </button>
       </div>
     </div>

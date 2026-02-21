@@ -119,7 +119,7 @@ export default function StudentDetailsForm({ initialData, onNext }: Props) {
               fontSize: "0.95rem",
               fontWeight: 500,
             }}>
-            🇺🇸 +1
+            +1
           </div>
           <input
             id={field.name}

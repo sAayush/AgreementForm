@@ -10,12 +10,16 @@ export async function sendSignedAgreementEmail({
   studentEmail,
   studentName,
   adminEmail,
+  adminName,
+  adminNotes,
   pdfBuffer,
   course,
 }: {
   studentEmail: string
   studentName: string
   adminEmail: string
+  adminName: string
+  adminNotes?: string
   pdfBuffer: Buffer
   course: string
 }) {
@@ -38,16 +42,16 @@ export async function sendSignedAgreementEmail({
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 22px;">Student Agreement Signed</h1>
+        <h1 style="color: white; margin: 0; font-size: 22px;">✅ Student Agreement Approved</h1>
       </div>
       <div style="background: #f9f9ff; padding: 24px; border: 1px solid #e5e5f0; border-top: none; border-radius: 0 0 12px 12px;">
         <p style="color: #333; font-size: 15px;">Hello,</p>
         <p style="color: #555; font-size: 14px; line-height: 1.6;">
-          A student agreement has been digitally signed. The details are below:
+          The student agreement has been reviewed and approved by the admin. The signed PDF is attached to this email.
         </p>
         <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
           <tr>
-            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3; border-radius: 6px 0 0 0;">Name</td>
+            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3; border-radius: 6px 0 0 0;">Student Name</td>
             <td style="padding: 8px 12px; background: #f5f3fa; border-radius: 0 6px 0 0;">${studentName}</td>
           </tr>
           <tr>
@@ -55,9 +59,22 @@ export async function sendSignedAgreementEmail({
             <td style="padding: 8px 12px; background: #f5f3fa;">${studentEmail}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3; border-radius: 0 0 0 6px;">Course</td>
-            <td style="padding: 8px 12px; background: #f5f3fa; border-radius: 0 0 6px 0;">${course || "N/A"}</td>
+            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3;">Course</td>
+            <td style="padding: 8px 12px; background: #f5f3fa;">${course || "N/A"}</td>
           </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3;">Approved by</td>
+            <td style="padding: 8px 12px; background: #f5f3fa;">${adminName}</td>
+          </tr>
+          ${
+            adminNotes
+              ? `
+          <tr>
+            <td style="padding: 8px 12px; background: #f0edf8; font-weight: bold; color: #5838a3; border-radius: 0 0 0 6px;">Admin Notes</td>
+            <td style="padding: 8px 12px; background: #f5f3fa; border-radius: 0 0 6px 0;">${adminNotes}</td>
+          </tr>`
+              : ""
+          }
         </table>
         <p style="color: #555; font-size: 14px; line-height: 1.6;">
           The signed agreement PDF is attached to this email for your records.
@@ -74,7 +91,7 @@ export async function sendSignedAgreementEmail({
   await transporter.sendMail({
     from: fromAddress,
     to: studentEmail,
-    subject: `Your Signed Agreement — ${studentName}`,
+    subject: `Your Agreement Has Been Approved — ${studentName}`,
     html: htmlBody,
     attachments: [
       {
@@ -89,7 +106,7 @@ export async function sendSignedAgreementEmail({
   await transporter.sendMail({
     from: fromAddress,
     to: adminEmail,
-    subject: `[New Submission] Agreement Signed by ${studentName}`,
+    subject: `[Approved] Agreement — ${studentName}`,
     html: htmlBody,
     attachments: [
       {
